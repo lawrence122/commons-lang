@@ -1,0 +1,41 @@
+name: SonarQube
+on:
+  push:
+    branches:
+      - '**'
+  pull_request:
+
+jobs:
+  sonarqube:
+    name: SonarQube
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Build and Test with Coverage
+        run: |
+          ./gradlew clean test jacocoTestReport
+
+      - name: Debug - List coverage directory
+        run: ls -la build/reports/jacoco/test || echo "Coverage directory not found"
+
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v4
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=345-commons-lang-project
+            -Dsonar.organization=lawrence122
+            -Dsonar.host.url=https://sonarqube.io
+            -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/test/jacocoTestReport.xml
+            -Dsonar.sources=src/main/java
+            -Dsonar.tests=src/test/java
