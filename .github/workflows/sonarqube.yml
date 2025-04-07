@@ -11,8 +11,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
+      
+      - name: Set gradlew permissions
+          run: chmod +x ./gradlew
 
       - name: Set up JDK 17
         uses: actions/setup-java@v4
@@ -21,8 +22,7 @@ jobs:
           distribution: 'temurin'
 
       - name: Build and Test with Coverage
-        run: |
-          ./gradlew clean test jacocoTestReport
+        run: ./gradlew clean test jacocoTestReport
 
       - name: Debug - List coverage directory
         run: ls -la build/reports/jacoco/test || echo "Coverage directory not found"
